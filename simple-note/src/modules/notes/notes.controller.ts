@@ -1,14 +1,24 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { NotesService } from './notes.service';
-import { CreateNoteDto } from './dto/create-note.dto';
+import { NoteDto } from './dto/note.dto';
 
 @Controller('notes')
 export class NotesController {
   constructor(private readonly notesService: NotesService) {}
-
   @Post()
-  create(@Body() createNoteDto: CreateNoteDto) {
-    return this.notesService.createNote(createNoteDto.title, createNoteDto.content);
+  create(@Body() createNoteDto: NoteDto) {
+    return this.notesService.createNote(
+      createNoteDto.title,
+      createNoteDto.content,
+    );
   }
 
   @Get()
@@ -18,25 +28,28 @@ export class NotesController {
 
   @Get('deleted')
   findDeleted() {
-    return this.notesService.getDeletedNotes()
+    return this.notesService.getDeletedNotes();
   }
-
   @Put(':id')
-  edit(@Param('id') id: string,  @Body() createNoteDto: CreateNoteDto) {
-    const noteId = parseInt(id, 10)
-    return this.notesService.editNote(noteId, createNoteDto.title, createNoteDto.content);
+  edit(@Param('id') id: string, @Body() createNoteDto: NoteDto) {
+    const noteId = parseInt(id, 10);
+    return this.notesService.editNote(
+      noteId,
+      createNoteDto.title,
+      createNoteDto.content,
+    );
   }
-
   @Delete(':id')
-  delete(@Param('id') id: string, @Body() createNoteDto: CreateNoteDto) {
-    const noteId = parseInt(id, 10)
+  delete(@Param('id') id: string) {
+    const noteId = parseInt(id, 10);
     return this.notesService.deleteNote(noteId);
   }
 
   @Post('restore/:id')
-  restore(@Param('id') id: string, @Body() createNoteDto: CreateNoteDto): boolean {
-    const noteId = parseInt(id, 10)
+  restore(
+    @Param('id') id: string,
+  ): boolean {
+    const noteId = parseInt(id, 10);
     return this.notesService.restoreNotes(noteId);
   }
 }
-
