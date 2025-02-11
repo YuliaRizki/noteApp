@@ -9,8 +9,6 @@ export class NotesService {
   createNote(title: string, content: string): CreateNoteDto {
     const newNote = { id: this.newId++, title, content, isDeleted: false };
     this.notes.push(newNote);
-    console.log('Created note:', newNote);
-    console.log('All notes:', this.notes);
     return newNote;
   }
 
@@ -34,7 +32,6 @@ export class NotesService {
   }
 
   getAllNotes(): CreateNoteDto[] {
-    // console.log('Returning all notes:', this.notes);
     return this.notes.filter(note => !note.isDeleted);
   }
 

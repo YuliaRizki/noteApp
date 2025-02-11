@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react";
+import { notesApi } from '@/lib/api/notes';
 
 interface Note {
   id: number;
@@ -21,46 +22,25 @@ export default function Home() {
   }, [showDeleted]);
 
   const fetchNotes = async () => {
-    try {
-      const endpoint = showDeleted ? 'http://localhost:3000/notes/deleted' : 'http://localhost:3000/notes';
-      const response = await fetch(endpoint);
-      const data = await response.json();
-      // console.log('Fetched notes:', data);
-      setNotes(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.log('Error fetching notes:', error);
-      setNotes([])
-    }
+    const notes = showDeleted 
+      ? await notesApi.getDeleted()
+      : await notesApi.getAll();
+    setNotes(notes);
   };
 
   const createNote = async () => {
-    const newNote = { title, content };
-    try {
-      await fetch('http://localhost:3000/notes', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newNote),
-      });
+    const newNote = await notesApi.create({ title, content });
+    if (newNote) {
       fetchNotes();
       setTitle("");
       setContent("");
-    } catch (error) {
-      console.error('Error creating note:', error);
     }
   };
 
   const editNote = async (id: number) => {
-    const updatedNote = { title, content };
+    const updatedNote = { title, content, isDeleted: showDeleted };
     try {
-      await fetch(`http://localhost:3000/notes/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updatedNote),
-      });
+      await notesApi.update(id, updatedNote);
       fetchNotes();
       setTitle("");
       setContent("");
@@ -72,9 +52,7 @@ export default function Home() {
 
   const deleteNote = async (id: number) => {
     try {
-      await fetch(`http://localhost:3000/notes/${id}`, {
-        method: 'DELETE',
-      });
+      await notesApi.delete(id);
       fetchNotes();
     } catch (error) {
       console.error('Error deleting note:', error);
@@ -83,9 +61,7 @@ export default function Home() {
 
   const restoreNote = async (id: number) => {
     try {
-      await fetch(`http://localhost:3000/notes/restore/${id}`, {
-        method: 'POST',
-      });
+      await notesApi.restore(id);
       fetchNotes();
     } catch (error) {
       console.error('Error restoring note:', error);
